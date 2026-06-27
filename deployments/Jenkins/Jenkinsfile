@@ -4,7 +4,7 @@ pipeline{
         buildDiscarder(logRotator(numToKeepStr: '3'))
       }
       environment {
-        DOCKERHUB_CREDENTIALS = credentials('globaldockerhub')
+        DOCKERHUB_CREDENTIALS = credentials('docker-cred')
         appName = "server"
         registry = ""
         registryCredential = ""
@@ -20,7 +20,7 @@ pipeline{
             stage('Environment'){
             steps {
                 sh 'python3 --version'
-                    git url: 'https://github.com/joelwembo/django-multitenant-saas-ecommerce-kubernetes.git' 
+                    git url: 'https://github.com/bankolefolorunsho-lab/django-multitenant-saas-ecommerce-kubernetes.git' 
                 }
         
             }
@@ -33,7 +33,7 @@ pipeline{
                 steps {
                     // Run SonarQube scanner
                     script {
-                        withSonarQubeEnv('SonarQube Server') {
+                        withSonarQubeEnv('sonarqube') {
                             sh "${env.SONAR_SCANNER_HOME}/bin/sonar-scanner"
                         }
                     }
@@ -43,7 +43,7 @@ pipeline{
                 steps  {
                     // sh 'docker-compose down'
                     // sh 'docker-compose build --no-cache'
-                    sh 'docker build -t joelwembo/prodxcloud-django-web:latest --no-cache .'
+                    sh 'docker build -t bankybanks/prodxcloud-django-web:latest --no-cache .'
                     }
             }
             stage('Login') {
@@ -55,7 +55,7 @@ pipeline{
 
             stage('Trivy Scan') {
                 steps {
-                    sh 'trivy image joelwembo/prodxcloud-django-web:latest'
+                    sh 'trivy image bankybanks/prodxcloud-django-web:latest'
                 }
             }
 
@@ -63,7 +63,7 @@ pipeline{
                 steps {
                     sh 'docker images'
                     sh 'docker images --filter "reference=prodxcloud-django-web*"' 
-                    sh 'docker push joelwembo/prodxcloud-django-web:latest'
+                    sh 'docker push bankybanks/prodxcloud-django-web:latest'
                 }
             }
             stage('Run the Application'){
